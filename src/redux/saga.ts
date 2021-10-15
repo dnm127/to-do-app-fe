@@ -26,13 +26,17 @@ import {
   deleteTasksFailure,
   deleteTasksSuccess,
   addTaskSuccess,
+  getAllTasksOffsetRequest,
+  getAllTasksOffsetSuccess,
+  getAllTasksOffsetFailure,
 } from './actions';
-import { all, call, takeLatest, put, takeEvery } from 'redux-saga/effects';
+import { all, call, put, takeEvery } from 'redux-saga/effects';
 import { ITask } from '../interfaces';
 
-function* getAllTasksSaga(): any {
+function* getAllTasksSaga(action: any): any {
+  const { offset, limit, callback } = action.payload;
   try {
-    const result = yield call(getAllTasksService);
+    const result = yield call(getAllTasksService, { offset, limit });
     if (!result.data.error) {
       const data = result.data.data.map((item: ITask) => {
         const id = item._id;
@@ -44,22 +48,26 @@ function* getAllTasksSaga(): any {
       });
 
       yield put(getAllTasksSuccess(data));
+      callback && callback(true);
     } else {
       yield put(getAllTasksFailure());
+      callback && callback(false);
     }
   } catch (error) {
     console.log('Error', error);
     yield put(getAllTasksFailure());
+    callback && callback(false);
   }
 }
 
 function* getOneTaskSaga(action: any): any {
-  const { id } = action.payload;
+  const { id, callback } = action.payload;
   try {
     const result = yield call(getOneTaskService, { id });
     if (!result.data.error) {
-      const data = result.data;
+      const data = result.data.data;
       yield put(getOneTaskSuccess(data));
+      callback && callback();
     } else {
       yield put(getOneTaskFailure());
     }
@@ -104,14 +112,16 @@ function* addTaskRequestSaga(action: any): any {
       newCategoryName,
     });
     if (!result.data.error) {
-      yield put(addTaskSuccess());
-      yield put(getAllTasksRequest());
-      callbackAction();
+      yield put(addTaskSuccess(result.data.data));
+      // yield put(getAllTasksRequest({}));
+      callbackAction(true);
     } else {
       yield put(addTaskFailure());
+      callbackAction(false);
     }
   } catch (error) {
     yield put(addTaskFailure());
+    callbackAction(false);
   }
 }
 
@@ -138,13 +148,15 @@ function* editTaskRequestSaga(action: any): any {
     });
     if (!result.data.error) {
       yield put(editTaskSuccess(result.data.data));
-      callback && callback();
+      callback && callback(true);
     } else {
       yield put(editTaskFailure());
+      callback && callback(false);
     }
   } catch (error) {
     console.log(error);
     yield put(editTaskFailure());
+    callback && callback(false);
   }
 }
 
@@ -161,9 +173,39 @@ function* deleteTaskRequestSaga(action: any): any {
   }
 }
 
+function* getAllTasksOffsetSaga(action: any): any {
+  const { offset, limit, callback } = action.payload;
+  try {
+    const result = yield call(getAllTasksService, { offset, limit });
+    if (!result.data.error) {
+      const data = result.data.data.map((item: ITask) => {
+        const id = item._id;
+        delete item._id;
+        return {
+          ...item,
+          id,
+        };
+      });
+
+      yield put(getAllTasksOffsetSuccess(data));
+      if (result.data.data.length > 0) {
+        callback && callback(true);
+      }
+    } else {
+      yield put(getAllTasksFailure());
+      callback && callback(false);
+    }
+  } catch (error) {
+    console.log('Error', error);
+    yield put(getAllTasksOffsetFailure());
+    callback && callback(false);
+  }
+}
+
 export default function* taskSaga() {
   yield all([
     takeEvery(getAllTasksRequest, getAllTasksSaga),
+    takeEvery(getAllTasksOffsetRequest, getAllTasksOffsetSaga),
     takeEvery(getOneTaskRequest, getOneTaskSaga),
     takeEvery(addTaskRequest, addTaskRequestSaga),
     takeEvery(editTaskRequest, editTaskRequestSaga),

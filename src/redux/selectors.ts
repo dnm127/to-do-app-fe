@@ -18,3 +18,16 @@ export const taskModelSelector = (
 export const getAllCategoriesSelector = (
   state: ITaskInitialState,
 ): ICategory[] => state.allCategories;
+
+export const loadingTasksWithOffsetSelector = (
+  state: ITaskInitialState,
+): boolean => state.loadingTasksWithOffset;
+
+export const categoryFilterSelector = (state: ITaskInitialState): string =>
+  state.filter.category;
+
+export const stateFilterSelector = (state: ITaskInitialState): string =>
+  state.filter.state;
+
+export const priorityFilterSelector = (state: ITaskInitialState): number =>
+  state.filter.priority;

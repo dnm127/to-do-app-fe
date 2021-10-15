@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   SwipeableDrawer,
   TextField,
@@ -16,6 +16,7 @@ import {
 } from '@material-ui/core/';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { get, clone } from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useStyles } from './styles';
 import {
@@ -41,6 +42,7 @@ export default function NewTaskPanel({
   onOpen: () => void;
   isEditing?: boolean;
 }) {
+  const { t } = useTranslation();
   const styles = useStyles();
   const dispatch = useDispatch();
   const taskModel = useSelector(taskModelSelector);
@@ -58,19 +60,6 @@ export default function NewTaskPanel({
           newCategoryName: '',
         },
   );
-
-  // useEffect(() => {
-  //   setTaskData({
-  //     id: taskModel.id,
-  //     title: taskModel.title,
-  //     description: taskModel.description,
-  //     state: taskModel.state,
-  //     priority: taskModel.priority,
-  //     categoryId: taskModel.categoryId,
-  //     newCategoryName: taskModel.newCategoryName,
-  //     category: taskModel.category,
-  //   });
-  // }, [taskModel]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const property = event.target.name;
@@ -136,18 +125,28 @@ export default function NewTaskPanel({
         );
   };
 
-  const submitSuccessCallback = () => {
+  const submitSuccessCallback = (success: boolean) => {
     onClose();
     dispatch(getAllCategoriesRequest());
-    dispatch(
-      handleSnackbar({
-        open: true,
-        status: 'success',
-        content: isEditing
-          ? TASK_ACTION.EDIT_TASK_SUCCESS
-          : TASK_ACTION.ADD_NEW_TASK_SUCCESS,
-      }),
-    );
+    isEditing
+      ? dispatch(
+          handleSnackbar({
+            open: true,
+            status: success ? 'success' : 'error',
+            content: success
+              ? t(TASK_ACTION.EDIT_TASK_SUCCESS)
+              : t(TASK_ACTION.EDIT_TASK_FAILURE),
+          }),
+        )
+      : dispatch(
+          handleSnackbar({
+            open: true,
+            status: success ? 'success' : 'error',
+            content: success
+              ? t(TASK_ACTION.ADD_NEW_TASK_SUCCESS)
+              : t(TASK_ACTION.ADD_NEW_TASK_FAILURE),
+          }),
+        );
   };
 
   return (
@@ -163,16 +162,16 @@ export default function NewTaskPanel({
       <div className={styles.formContainer}>
         <TextField
           id='title'
-          label='Title'
+          label={t('Title')}
           name='title'
-          value={taskData.title}
+          value={t(taskData.title)}
           className={styles.formInput}
           onChange={handleChange}
         />
         <TextField
           id='description'
           name='description'
-          label='Description'
+          label={t('Description')}
           multiline
           rows={15}
           value={taskData.description}
@@ -185,7 +184,7 @@ export default function NewTaskPanel({
               component='legend'
               classes={{ root: styles.radioGroupLabel }}
             >
-              Priority
+              {t('Priority')}
             </FormLabel>
             <RadioGroup
               aria-label='gender'
@@ -197,17 +196,17 @@ export default function NewTaskPanel({
               <FormControlLabel
                 value={1}
                 control={<Radio classes={{ checked: styles.radioButton }} />}
-                label='Low'
+                label={t('Low')}
               />
               <FormControlLabel
                 value={2}
                 control={<Radio classes={{ checked: styles.radioButton }} />}
-                label='Medium'
+                label={t('Medium')}
               />
               <FormControlLabel
                 value={3}
                 control={<Radio classes={{ checked: styles.radioButton }} />}
-                label='High'
+                label={t('High')}
               />
             </RadioGroup>
           </FormControl>
@@ -216,23 +215,16 @@ export default function NewTaskPanel({
           {!openNewCategoryForm ? (
             <FormControl className={styles.categorySelector}>
               <InputLabel id='category-selector-label'>
-                Select Category
+                {t('Select Category')}
               </InputLabel>
               <Select
                 labelId='category-selector-label'
                 id='category-selector'
                 name='categoryId'
                 onChange={handleChangeCategory}
-                // value={
-                //   isEditing
-                //     ? taskData?.category?.id
-                //       ? taskData.category.id
-                //       : ''
-                //     : taskData.categoryId
-                // }
                 value={get(taskData, 'categoryId', '')}
               >
-                <MenuItem value=''>None</MenuItem>
+                <MenuItem value=''></MenuItem>
                 {allCategories.map((item) => {
                   return (
                     <MenuItem value={item.id} key={item.id}>
@@ -246,7 +238,7 @@ export default function NewTaskPanel({
             <TextField
               id='newCategoryName'
               name='newCategoryName'
-              label='New Category'
+              label={t('New Category')}
               value={taskData.newCategoryName}
               className={styles.formInput}
               onChange={handleChange}
@@ -261,7 +253,7 @@ export default function NewTaskPanel({
           className={styles.openNewCategoryForm}
         >
           {/* <AddIcon fontSize='small' /> */}
-          {!openNewCategoryForm ? 'New category' : 'Select a category'}
+          {!openNewCategoryForm ? t('New Category') : t('Select a category')}
         </Button>
         <Tooltip title='Save'>
           <IconButton

@@ -1,5 +1,5 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { color, theme } from '../../theme';
+import { color } from '../../theme';
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     main: {
@@ -7,7 +7,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     mainHeader: {
       padding: theme.spacing(3, 4, 3, 4),
-      height: 80,
+      // height: 80,
       position: 'sticky',
       top: 0,
       backgroundColor: color.color11,
@@ -52,6 +52,19 @@ export const useStyles = makeStyles((theme: Theme) =>
         fill: color.color11,
         transform: 'rotate(45deg)',
       },
+    },
+
+    switchBtn: {
+      borderRadius: '50%',
+      backgroundColor: color.color2,
+      color: color.color11,
+      fontSize: '10px',
+      fontWeight: 'bold',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 25,
+      width: 25,
     },
   }),
 );

@@ -16,6 +16,10 @@ import {
   editTaskSuccess,
   deleteTasksSuccess,
   deleteTasksFailure,
+  getAllTasksOffsetRequest,
+  getAllTasksOffsetSuccess,
+  getAllTasksOffsetFailure,
+  addTaskSuccess,
 } from './actions';
 
 const initialState = {
@@ -23,6 +27,7 @@ const initialState = {
   loadingFetchTask: false,
   loadingFetchCategory: false,
   loadingFetchAllTasks: false,
+  loadingTasksWithOffset: false,
   snackBar: {
     open: false,
     status: '',
@@ -35,6 +40,11 @@ const initialState = {
     priority: PRIORITY.MEDIUM,
     categoryId: '',
     newCategoryName: '',
+  },
+  filter: {
+    category: '',
+    state: '',
+    priority: 0,
   },
 } as ITaskInitialState;
 
@@ -80,6 +90,13 @@ export const counterReducer = createReducer(initialState, (builder) => {
     })
     .addCase(getAllCategoriesFailure, (state, action) => {
       state.loadingFetchCategory = false;
+    })
+    .addCase(addTaskSuccess, (state, action) => {
+      const { result } = action.payload;
+      return {
+        ...state,
+        allTasks: [result, ...state.allTasks],
+      };
     })
     .addCase(getOneTaskRequest, (state, action) => {
       return {
@@ -142,5 +159,19 @@ export const counterReducer = createReducer(initialState, (builder) => {
       return {
         ...state,
       };
+    })
+    .addCase(getAllTasksOffsetRequest, (state, action) => {
+      state.loadingTasksWithOffset = true;
+    })
+    .addCase(getAllTasksOffsetSuccess, (state, action) => {
+      const { result } = action.payload;
+      return {
+        ...state,
+        allTasks: [...state.allTasks, ...result],
+        loadingTasksWithOffset: false,
+      };
+    })
+    .addCase(getAllTasksOffsetFailure, (state, action) => {
+      state.loadingTasksWithOffset = false;
     });
 });

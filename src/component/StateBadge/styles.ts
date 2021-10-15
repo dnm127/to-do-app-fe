@@ -5,13 +5,15 @@ export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     todoContainer: {
       borderRadius: '7px',
-      width: 50,
+      minWidth: '50px',
+      padding: '1px 5px',
       textAlign: 'center',
       backgroundColor: color.color3,
     },
     doneContainer: {
       borderRadius: '7px',
-      width: 50,
+      minWidth: '50px',
+      padding: '1px 5px',
       textAlign: 'center',
       backgroundColor: color.color5,
     },

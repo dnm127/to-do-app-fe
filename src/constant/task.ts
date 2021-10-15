@@ -15,8 +15,12 @@ export const STATE: ITaskState = {
 };
 
 export const TASK_ACTION = {
+  GET_ALL_TASKS_SUCCESS: 'All tasks fetched successfully',
+  GET_ALL_TASKS_FAILURE: 'All tasks fetched unsuccessfully',
   ADD_NEW_TASK_SUCCESS: 'New task added successfully',
   ADD_NEW_TASK_FAILURE: 'New task added unsuccessfully',
   EDIT_TASK_SUCCESS: 'Task edited successfully',
   EDIT_TASK_FAILURE: 'Task edited unsuccessfully',
+  DELETE_TASK_SUCCESS: 'Task deleted successfully',
+  DELETE_TASK_FAILURE: 'Task deleted unsuccessfully',
 };

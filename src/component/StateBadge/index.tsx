@@ -4,8 +4,10 @@ import { Typography } from '@material-ui/core';
 import { useStyles } from './styles';
 import classNames from 'classnames';
 import { useCommonStyles } from '../../commonStyles';
+import { useTranslation } from 'react-i18next';
 
 export default function StateBadge({ state }: { state: string }) {
+  const { t } = useTranslation();
   const styles = useStyles();
   const commonStyles = useCommonStyles();
 
@@ -17,18 +19,18 @@ export default function StateBadge({ state }: { state: string }) {
       case STATE.TO_DO:
         return {
           elementClass: 'todoState',
-          label: 'To Do',
+          label: t('To Do'),
         };
       case STATE.DONE:
         return {
           elementClass: 'doneState',
-          label: 'Done',
+          label: t('Done'),
         };
 
       default:
         return {
           elementClass: 'todoState',
-          label: 'To Do',
+          label: t('To Do'),
         };
     }
   };

@@ -13,7 +13,7 @@ import Checkbox, { CheckboxProps } from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import { useDispatch } from 'react-redux';
 import { color } from '../../theme';
-import { STATE } from '../../constant/task';
+import { STATE, TASK_ACTION } from '../../constant/task';
 import { format } from 'date-fns';
 import { useStyles } from './styles';
 import PriorityTag from '../PriorityTag';
@@ -22,7 +22,14 @@ import { useCommonStyles } from '../../commonStyles';
 import StateBadge from '../StateBadge';
 import { IconButton } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { deleteTasksRequest, editTaskRequest } from '../../redux/actions';
+import {
+  deleteTasksRequest,
+  editTaskRequest,
+  handleSnackbar,
+} from '../../redux/actions';
+import ConfirmationDialog from '../ConfirmationDialog';
+import { useTranslation } from 'react-i18next';
+import { enUS, vi } from 'date-fns/locale';
 
 const CustomCheckbox = withStyles({
   root: {
@@ -43,7 +50,7 @@ export default function TaskBadge({
   state,
   createdAt,
   category,
-  onEditTask,
+  onViewTask,
 }: {
   id: string;
   title: string;
@@ -51,12 +58,14 @@ export default function TaskBadge({
   state: string;
   category: string;
   createdAt: Date;
-  onEditTask: (id: string) => void;
+  onViewTask: (id: string) => void;
 }) {
+  const { t, i18n } = useTranslation();
   const styles = useStyles();
   const dispatch = useDispatch();
   const commonStyles = useCommonStyles();
   const isChecked = state === STATE.DONE;
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -64,8 +73,8 @@ export default function TaskBadge({
     setAnchorEl(anchorEl ? null : event.currentTarget);
   };
 
-  const handleClickEdit = () => {
-    onEditTask(id);
+  const handleClickView = () => {
+    onViewTask(id);
   };
 
   const handleCheckBadge = (
@@ -74,17 +83,47 @@ export default function TaskBadge({
   ) => {
     if (checked) {
       dispatch(
-        editTaskRequest({ id, state: STATE.DONE, categoryId: category }),
+        editTaskRequest({
+          id,
+          state: STATE.DONE,
+          categoryId: category,
+          callback: editTaskCallback,
+        }),
       );
     } else {
       dispatch(
-        editTaskRequest({ id, state: STATE.TO_DO, categoryId: category }),
+        editTaskRequest({
+          id,
+          state: STATE.TO_DO,
+          categoryId: category,
+          callback: editTaskCallback,
+        }),
       );
     }
   };
 
   const handleClickDelete = () => {
+    setOpenConfirmationDialog(true);
+  };
+
+  const handleConfirmDeleteTask = () => {
     dispatch(deleteTasksRequest([id]));
+  };
+
+  const handleCancelDeleteTask = () => {
+    setOpenConfirmationDialog(false);
+  };
+
+  const editTaskCallback = (success: boolean) => {
+    dispatch(
+      handleSnackbar({
+        open: true,
+        status: success ? 'success' : 'error',
+        content: success
+          ? t(TASK_ACTION.EDIT_TASK_SUCCESS)
+          : t(TASK_ACTION.EDIT_TASK_FAILURE),
+      }),
+    );
   };
 
   return (
@@ -95,7 +134,15 @@ export default function TaskBadge({
       style={{
         opacity: state === STATE.DONE ? 0.5 : 1,
       }}
+      onClick={handleClickView}
     >
+      {openConfirmationDialog && (
+        <ConfirmationDialog
+          open={openConfirmationDialog}
+          onConfirm={handleConfirmDeleteTask}
+          onCancel={handleCancelDeleteTask}
+        />
+      )}
       <CustomCheckbox checked={isChecked} onChange={handleCheckBadge} />
 
       <Box className={styles.taskTitleContainer}>
@@ -112,7 +159,14 @@ export default function TaskBadge({
         </div>
         <Box display='flex' alignItems='center' mt={2}>
           <Typography variant='body2' className={styles.taskCreatedDate}>
-            {format(new Date(createdAt), 'PP')}
+            {format(new Date(createdAt), 'PP', {
+              locale:
+                i18n.language === 'en'
+                  ? enUS
+                  : i18n.language === 'vn'
+                  ? vi
+                  : enUS,
+            })}
           </Typography>
           <PriorityTag priority={priority} />
           <StateBadge state={state} />
@@ -133,8 +187,8 @@ export default function TaskBadge({
             <Paper>
               <Fade {...TransitionProps}>
                 <MenuList>
-                  <MenuItem onClick={handleClickEdit}>Edit</MenuItem>
-                  <MenuItem onClick={handleClickDelete}>Delete</MenuItem>
+                  {/* <MenuItem onClick={handleClickView}>{t('View')}</MenuItem> */}
+                  <MenuItem onClick={handleClickDelete}>{t('Delete')}</MenuItem>
                 </MenuList>
               </Fade>
             </Paper>

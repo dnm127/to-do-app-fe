@@ -20,6 +20,9 @@ import {
   DELETE_TASKS_REQUEST,
   DELETE_TASKS_FAILURE,
   DELETE_TASKS_SUCCESS,
+  GET_ALL_TAKS_OFFSET_REQUEST,
+  GET_ALL_TAKS_OFFSET_SUCCESS,
+  GET_ALL_TAKS_OFFSET_FAILURE,
 } from './types';
 
 // SNACKBAR
@@ -45,7 +48,26 @@ export const handleSnackbar = createAction(
 );
 
 // TASK
-export const getAllTasksRequest = createAction(GET_ALL_TASKS_REQUEST);
+export const getAllTasksRequest = createAction(
+  GET_ALL_TASKS_REQUEST,
+  function prepare({
+    offset,
+    limit,
+    callback,
+  }: {
+    offset?: number;
+    limit?: number;
+    callback?: Function;
+  }) {
+    return {
+      payload: {
+        offset,
+        limit,
+        callback,
+      },
+    };
+  },
+);
 export const getAllTasksSuccess = createAction(
   GET_ALL_TASKS_SUCCESS,
   function prepare(result: ITask[]) {
@@ -91,14 +113,23 @@ export const addTaskRequest = createAction(
   },
 );
 
-export const addTaskSuccess = createAction(ADD_TASK_SUCCESS);
+export const addTaskSuccess = createAction(
+  ADD_TASK_SUCCESS,
+  function prepare(result: any) {
+    return {
+      payload: {
+        result,
+      },
+    };
+  },
+);
 export const addTaskFailure = createAction(ADD_TASK_FAILURE);
 
 export const getOneTaskRequest = createAction(
   GET_ONE_TASK_REQUEST,
-  function prepare(id: string) {
+  function prepare(id: string, callback?: Function) {
     return {
-      payload: { id },
+      payload: { id, callback },
     };
   },
 );
@@ -180,6 +211,40 @@ export const deleteTasksSuccess = createAction(
 );
 
 export const deleteTasksFailure = createAction(DELETE_TASKS_FAILURE);
+
+export const getAllTasksOffsetRequest = createAction(
+  GET_ALL_TAKS_OFFSET_REQUEST,
+  function prepare({
+    offset,
+    limit,
+    callback,
+  }: {
+    offset?: number;
+    limit?: number;
+    callback?: Function;
+  }) {
+    return {
+      payload: {
+        offset,
+        limit,
+        callback,
+      },
+    };
+  },
+);
+export const getAllTasksOffsetSuccess = createAction(
+  GET_ALL_TAKS_OFFSET_SUCCESS,
+  function prepare(result: any) {
+    return {
+      payload: {
+        result,
+      },
+    };
+  },
+);
+export const getAllTasksOffsetFailure = createAction(
+  GET_ALL_TAKS_OFFSET_FAILURE,
+);
 
 // CATEGORY
 export const getAllCategoriesRequest = createAction(GET_ALL_CATEGORIES_REQUEST);

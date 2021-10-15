@@ -9,8 +9,19 @@ import {
 const axios = require('axios');
 
 // Task
-export const getAllTasksService = () => {
-  return axios.get(GET_ALL_TASKS);
+export const getAllTasksService = ({
+  offset,
+  limit,
+}: {
+  offset?: number;
+  limit?: number;
+}) => {
+  return axios.get(GET_ALL_TASKS, {
+    params: {
+      offset,
+      limit,
+    },
+  });
 };
 
 export const getOneTaskService = ({ id }: { id: string }) => {

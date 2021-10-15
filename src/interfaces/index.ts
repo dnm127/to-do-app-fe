@@ -41,6 +41,7 @@ export interface ITaskInitialState {
   loadingFetchTask: boolean;
   loadingFetchAllTasks: boolean;
   loadingFetchCategory: boolean;
+  loadingTasksWithOffset: boolean;
   snackBar: {
     open: boolean;
     status: string;
@@ -56,6 +57,11 @@ export interface ITaskInitialState {
     categoryId: string;
     newCategoryName: string;
     category?: string;
+  };
+  filter: {
+    category: string;
+    state: string;
+    priority: number;
   };
 }
 
